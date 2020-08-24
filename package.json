@@ -4,12 +4,22 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "ts-node src/index.ts"
+    "start": "ts-node src/index.ts",
+    "watch": "tsc -w",
+    "start2": "node dist/index.js",
+    "dev": "nodemon src/index.ts"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "@types/node": "^14.6.0",
     "typescript": "^4.0.2"
+  },
+  "dependencies": {
+    "@mikro-orm/cli": "^4.0.0-alpha.0",
+    "@mikro-orm/core": "^4.0.0-alpha.0",
+    "@mikro-orm/migrations": "^4.0.0-alpha.0",
+    "@mikro-orm/postgresql": "^4.0.0-alpha.0",
+    "pg": "^8.3.2"
   }
 }
