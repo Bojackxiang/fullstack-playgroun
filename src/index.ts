@@ -6,9 +6,12 @@ import init from "./mikro-orm.config";
 const main = async () => {
   const orm = await MikroORM.init(init);
   await orm.getMigrator().up();
-  const post = orm.em.create(Post, { title: "My first post" });
-  await orm.em.persistAndFlush(post);
-  // await orm.em.nativeInsert(post);
+  // const post = orm.em.create(Post, { title: "My Second post" });
+  // await orm.em.persistAndFlush(post);
+  
+  const data = await orm.em.find(Post, {})
+  console.log(data);
+
 };
 
 main();
