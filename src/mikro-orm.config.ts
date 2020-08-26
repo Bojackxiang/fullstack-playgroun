@@ -1,4 +1,4 @@
-import { Post } from "./entitlies/Post";
+import Post from "./entitlies/Post";
 import path from "path";
 import { __prod__ } from "./constants";
 import { MikroORM } from "@mikro-orm/core";
