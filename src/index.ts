@@ -26,6 +26,10 @@ const main = async () => {
     })
   })
 
+  app.get('/hello', (req, res) => {
+    res.send("route for hello")
+  })
+
   apolloServer.applyMiddleware({app})
 
   app.listen("4000", () => {
