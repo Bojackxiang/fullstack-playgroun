@@ -3,6 +3,9 @@ import path from "path";
 import { __prod__ } from "./constants";
 import { MikroORM } from "@mikro-orm/core";
 
+
+// postgres login commend 
+// psql -U postgres -h localhost
 export default {
   migrations: {
     path: path.join(__dirname, "/.migrations"),
