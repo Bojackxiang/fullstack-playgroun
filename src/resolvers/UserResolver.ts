@@ -37,8 +37,23 @@ class UserResponse {
 @Resolver()
 export class UserResolver {
   @Query(() => [User])
-  async listUsers(@Ctx() { em, }: MyContext) {
+  async listUsers(@Ctx() { em, req }: MyContext) {
     return em.find(User, {});
+  }
+
+  @Query(() => UserResponse)
+  async me(@Ctx() { em, req }: MyContext) {
+    if (req.session.userId) {
+      const user = await em.findOne(User, { id: req.session.userId });
+      return {
+        code: 1,
+        user,
+      };
+    }
+    return {
+      code: -1,
+      error: "Please login ",
+    };
   }
 
   @Mutation(() => UserResponse)
@@ -104,12 +119,11 @@ export class UserResolver {
       }
 
       req.session.userId = user.id; // !代表着这个session 一定不是 undefined
-      console.log('user login ', req);
+
       return {
         user,
         code: 1,
       };
-
     } catch (error) {
       return {
         error: error.message,
