@@ -10,12 +10,8 @@ import {
   Int,
 } from "type-graphql";
 import User from "../entitlies/User";
-import { EntityManager, IDatabaseDriver, Connection } from "@mikro-orm/core";
 import argon2 from "argon2";
-
-type MyContext = {
-  em: EntityManager<any> & EntityManager<IDatabaseDriver<Connection>>;
-};
+import { MyContext } from "../../types/MyContext";
 
 @InputType()
 class UserNamePasswordInput {
@@ -41,11 +37,11 @@ class UserResponse {
 @Resolver()
 export class UserResolver {
   @Query(() => [User])
-  async listUsers(@Ctx() { em }: MyContext) {
+  async listUsers(@Ctx() { em, }: MyContext) {
     return em.find(User, {});
   }
 
-  @Mutation(() => Boolean)
+  @Mutation(() => UserResponse)
   async createUser(
     @Arg("options", () => UserNamePasswordInput) options: UserNamePasswordInput,
     @Ctx() { em }: MyContext
@@ -64,17 +60,23 @@ export class UserResolver {
       });
 
       await em.persistAndFlush(user);
-      return true;
+
+      return {
+        user: user,
+        code: 1,
+      };
     } catch (error) {
-      console.log(error.message);
-      return false;
+      return {
+        error: `${error.name} - ${error.detail}`,
+        code: -1,
+      };
     }
   }
 
   @Mutation(() => UserResponse)
   async userLogin(
     @Arg("options", () => UserNamePasswordInput) options: UserNamePasswordInput,
-    @Ctx() { em }: MyContext
+    @Ctx() { em, req, res }: MyContext
   ): Promise<UserResponse> {
     try {
       if (!options.username || !options.password) {
@@ -85,6 +87,7 @@ export class UserResolver {
         username: options.username.toLowerCase(),
       });
 
+      // there is no such a user
       if (!user) {
         return {
           error: "Did not find the user",
@@ -92,17 +95,21 @@ export class UserResolver {
         };
       }
 
-      if (!(await argon2.verify(user.password,  options.password))) {
+      // if the password is no correct
+      if (!(await argon2.verify(user.password, options.password))) {
         return {
           error: "Password is not correct",
           code: -1,
         };
       }
 
+      req.session.userId = user.id; // !代表着这个session 一定不是 undefined
+      console.log('user login ', req);
       return {
         user,
         code: 1,
       };
+
     } catch (error) {
       return {
         error: error.message,
