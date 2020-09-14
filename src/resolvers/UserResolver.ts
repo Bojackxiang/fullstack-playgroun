@@ -43,6 +43,7 @@ export class UserResolver {
 
   @Query(() => UserResponse)
   async me(@Ctx() { em, req }: MyContext) {
+    console.log(req.session);
     if (req.session.userId) {
       const user = await em.findOne(User, { id: req.session.userId });
       return {
@@ -118,7 +119,9 @@ export class UserResolver {
         };
       }
 
+      // 下面的这个对于request的设定，其实就是之后程序往后短发程序后段所收到的数据
       req.session.userId = user.id; // !代表着这个session 一定不是 undefined
+      req.session.test = 'alex is cool'
 
       return {
         user,

@@ -10,21 +10,21 @@ import { UserResolver } from "./resolvers/UserResolver";
 import redis from "redis";
 import session from "express-session";
 import connectRedis from "connect-redis";
+import cors from "cors";
 
 const main = async () => {
   const orm = await MikroORM.init(init);
   await orm.getMigrator().up();
-  // const post = orm.em.create(Post, { title: "My Second post" });
-  // await orm.em.persistAndFlush(post);
-
-  // const data = await orm.em.find(Post, {})
-  // console.log(data);
 
   const app = express();
 
   const RedisStore = connectRedis(session);
   const redisClient = redis.createClient();
-
+  // set up the cors
+  app.use(cors({
+    origin: 'http://localhost:3000',
+    credentials: true
+  }));
   // setting the session and the redis
   app.use(
     session({
@@ -34,11 +34,11 @@ const main = async () => {
         maxAge: 1000 * 60 * 60 * 24,
         httpOnly: true,
         secure: __prod__,
-        sameSite: "lax", 
+        sameSite: "lax",
       },
       secret: "my secret",
       resave: false,
-      saveUninitialized: false, 
+      saveUninitialized: false,
     })
   );
 
@@ -48,10 +48,10 @@ const main = async () => {
       resolvers: [HelloResolver, PostResolver, UserResolver],
       validate: false,
     }),
-    context: ({req, res}) => ({
+    context: ({ req, res }) => ({
       em: orm.em,
       req,
-      res
+      res,
     }),
   });
 
@@ -59,12 +59,14 @@ const main = async () => {
     res.send("route for hello");
   });
 
-  apolloServer.applyMiddleware({ app });
+  apolloServer.applyMiddleware({
+    app,
+    cors: { origin: "http://localhost:3000" },
+  });
 
-  app.listen("4000", () => {
+  app.listen("5000", () => {
     console.log("The express is ready 🚀");
   });
 };
 
 main();
-
