@@ -11,6 +11,7 @@ import redis from "redis";
 import session from "express-session";
 import connectRedis from "connect-redis";
 import cors from "cors";
+import CookieParser from 'cookie-parser'
 
 const main = async () => {
   const orm = await MikroORM.init(init);
@@ -21,10 +22,12 @@ const main = async () => {
   const RedisStore = connectRedis(session);
   const redisClient = redis.createClient();
   // set up the cors
-  app.use(cors({
-    origin: 'http://localhost:3000',
-    credentials: true
-  }));
+  app.use(
+    cors({
+      origin: "http://localhost:3000",
+      credentials: true,
+    })
+  );
   // setting the session and the redis
   app.use(
     session({
@@ -41,6 +44,8 @@ const main = async () => {
       saveUninitialized: false,
     })
   );
+
+  app.use(CookieParser())
 
   // generate the apollo server
   const apolloServer = new ApolloServer({

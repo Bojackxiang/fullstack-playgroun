@@ -82,8 +82,9 @@ export class UserResolver {
         code: 1,
       };
     } catch (error) {
+      console.log(error);
       return {
-        error: `${error.name} - ${error.detail}`,
+        error: `${error.name}`,
         code: -1,
       };
     }
@@ -121,7 +122,7 @@ export class UserResolver {
 
       // 下面的这个对于request的设定，其实就是之后程序往后短发程序后段所收到的数据
       req.session.userId = user.id; // !代表着这个session 一定不是 undefined
-      req.session.test = 'alex is cool'
+      req.session.test = "alex is cool";
 
       return {
         user,
@@ -133,6 +134,17 @@ export class UserResolver {
         code: -1,
       };
     }
+  }
+
+  @Mutation(() => Boolean)
+  userLogout(@Ctx() { req, res }: MyContext) {
+    return new Promise((resolve) => {
+      res.clearCookie('qid', {path: '/'});
+      req.session.destroy((error) => {
+        if(error) resolve(false)
+      })
+      resolve(true)
+    })
   }
 }
 
